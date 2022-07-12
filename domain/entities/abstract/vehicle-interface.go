@@ -1,4 +1,4 @@
-package interfaces
+package abstract
 
 type IVehicle interface {
 	GetId() string

@@ -1,16 +1,16 @@
 package main
 
 import (
+	"demo/app"
 	"log"
 	"net/http"
-
-	"demo/app/controllers"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/vehicle", controllers.GetVehicle).Methods("GET")
+	app.CreateApp(router)
+
 	log.Fatal(http.ListenAndServe(":7000", router))
 }
