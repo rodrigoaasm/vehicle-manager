@@ -2,7 +2,8 @@ package interfaces
 
 import "demo/domain/entities/abstract"
 
-type VehicleRepository interface {
+type IVehicleRepository interface {
 	GetAllVehicle() ([]abstract.IVehicle, error)
 	GetVehicleById(id string) (abstract.IVehicle, error)
+	SaveVehicle(vehicle abstract.IVehicle) error
 }

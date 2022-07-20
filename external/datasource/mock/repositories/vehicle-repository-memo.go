@@ -15,7 +15,7 @@ var vehicles = []abstract.IVehicle{
 type VehicleRepositoryMemo struct {
 }
 
-func (repo VehicleRepositoryMemo) saveVehicle(vehicle abstract.IVehicle) error {
+func (repo VehicleRepositoryMemo) SaveVehicle(vehicle abstract.IVehicle) error {
 	return nil
 }
 

@@ -1,8 +1,8 @@
-package services_test
+package vehiclegetterservice_test
 
 import (
 	"demo/domain/entities"
-	"demo/domain/services"
+	vehiclegetterservice "demo/domain/services/vehicle_getter_service"
 	"demo/external/datasource/mock/repositories"
 	"testing"
 
@@ -11,18 +11,18 @@ import (
 )
 
 var vehicleRepositoryMemo = repositories.VehicleRepositoryMemo{}
-var vehicleGetterService = services.VehicleGetterService{VehicleRepository: vehicleRepositoryMemo}
+var vehicleGetterService = vehiclegetterservice.VehicleGetterService{VehicleRepository: vehicleRepositoryMemo}
 
-func TestGetAllVehicle_1(t *testing.T) {
+func TestGetAllVehicle(t *testing.T) {
 	result, err := vehicleGetterService.GetAllVehicle()
 
-	require.Nil(t, err, "should not return an error")
+	require.Nil(t, err, "should not return an error  when TestGetAllVehicle was executed")
 	assert.Equal(t, len(result), 3, "should return all vehicles")
 }
 
-func TestGetAllVehicle_2(t *testing.T) {
+func TestGetVehicleById(t *testing.T) {
 	result, err := vehicleGetterService.GetVehicleById("a154")
 
-	require.Nil(t, err, "should not return an error")
+	require.Nil(t, err, "should not return an error when GetVehicleById was executed")
 	assert.Equal(t, result, entities.NewCar("a154", "VW GOL", "black", "14885511T125T"), "should return one car")
 }

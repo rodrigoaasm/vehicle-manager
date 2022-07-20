@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"demo/domain/services"
+	vehiclegetterservice "demo/domain/services/vehicle_getter_service"
 )
 
 type VehicleGetterController struct {
-	VehicleGetterService services.IVehicleGetterService
+	VehicleGetterService vehiclegetterservice.IVehicleGetterService
 }
 
 func (controller VehicleGetterController) Handle(resWriter http.ResponseWriter, req *http.Request) {
@@ -19,8 +19,7 @@ func (controller VehicleGetterController) Handle(resWriter http.ResponseWriter, 
 		result, err := controller.VehicleGetterService.GetVehicleById(id)
 
 		if err != nil {
-			resWriter.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(resWriter)
+			http.Error(resWriter, err.Error(), 500)
 			return
 		}
 
