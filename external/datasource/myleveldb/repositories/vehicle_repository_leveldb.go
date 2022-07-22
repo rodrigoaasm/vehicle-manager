@@ -16,15 +16,15 @@ type VehicleRepository struct {
 }
 
 func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVehicle, error) {
-	payload := strings.Split(string(marshalledVehicle), "{")
+	payload := strings.Split(string(marshalledVehicle), "->")
 	if payload[0] == "*entities.Car" {
 		var vehicle entities.Car
-		errUnMarshal := json.Unmarshal([]byte("{"+payload[1]), &vehicle)
+		errUnMarshal := json.Unmarshal([]byte(payload[1]), &vehicle)
 		return &vehicle, errUnMarshal
 
 	} else if payload[0] == "*entities.Truck" {
 		var vehicle entities.Truck
-		errUnMarshal := json.Unmarshal([]byte("{"+payload[1]), &vehicle)
+		errUnMarshal := json.Unmarshal([]byte(payload[1]), &vehicle)
 		return &vehicle, errUnMarshal
 
 	}
@@ -40,7 +40,7 @@ func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
 
 	// Add entity type to unmarshalled entity
 	objectType := reflect.TypeOf(vehicle).String()
-	marshalledData := append([]byte(objectType), marshalledVehicle...)
+	marshalledData := append([]byte(objectType+"->"), marshalledVehicle...)
 
 	// Save
 	errStore := repo.DB.Put([]byte(vehicle.GetId()), marshalledData, nil)
