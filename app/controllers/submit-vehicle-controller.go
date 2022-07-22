@@ -8,10 +8,11 @@ import (
 )
 
 type SubmitVehicleBodyRequest struct {
-	Category string `json:"category"`
-	Name     string `json:"name"`
-	Cor      string `json:"cor"`
-	Serie    string `json:"serie"`
+	Category     string `json:"category"`
+	Name         string `json:"name"`
+	Cor          string `json:"cor"`
+	Serie        string `json:"serie"`
+	LicensePlate string `json:"licensePlate`
 }
 
 type SubmitVehicleController struct {
@@ -29,7 +30,7 @@ func (controller SubmitVehicleController) Handle(resWriter http.ResponseWriter, 
 	}
 
 	errSubmit := controller.SubmitVehicleService.Submit(
-		data.Category, data.Name, data.Cor, data.Serie,
+		data.Category, data.Name, data.Cor, data.Serie, data.LicensePlate,
 	)
 	if errSubmit != nil {
 		http.Error(resWriter, errSubmit.Error(), 500)

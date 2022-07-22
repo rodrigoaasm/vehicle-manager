@@ -4,14 +4,15 @@ type Car struct {
 	Vehicle
 }
 
-func NewCar(id string, name string, cor string, serie string) *Car {
+func NewCar(id, name, color, serie, licensePlate string) *Car {
 	car := Car{
 		Vehicle: Vehicle{
-			Id:     id,
-			Name:   name,
-			Cor:    cor,
-			Serie:  serie,
-			status: false,
+			Id:           id,
+			Name:         name,
+			Color:        color,
+			Serie:        serie,
+			status:       false,
+			LicensePlate: licensePlate,
 		},
 	}
 

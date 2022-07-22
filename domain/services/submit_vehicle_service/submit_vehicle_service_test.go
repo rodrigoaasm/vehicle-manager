@@ -1,7 +1,6 @@
 package submitvehicleservice_test
 
 import (
-	"demo/domain/entities"
 	submitvehicleservice "demo/domain/services/submit_vehicle_service"
 	"demo/external/datasource/mock/repositories"
 	"testing"
@@ -14,12 +13,38 @@ var vehicleRepositoryMemo = repositories.VehicleRepositoryMemo{}
 var vehicleGetterService = submitvehicleservice.SubmitVehicleService{VehicleRepository: vehicleRepositoryMemo}
 
 func TestSubmit(t *testing.T) {
-	car := entities.NewCar("", "VW GOL", "black", "14885511T125T")
-	err := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T125T")
+	errNameLess := vehicleGetterService.Submit("car", "VW", "black", "14885511T125T", "ABC1234")
+	assert.Equal(
+		t,
+		errNameLess.Error(),
+		"The name must be greater than 25 or less than 3.",
+		"should return an error when name is less 3",
+	)
 
+	errNameGreat := vehicleGetterService.Submit("car", "123456789-123456789-123456", "black", "14885511T125T", "ABC1234")
+	assert.Equal(
+		t,
+		errNameGreat.Error(),
+		"The name must be greater than 25 or less than 3.",
+		"should return an error when name is greater 25",
+	)
+
+	errPlate := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T125T", "ABCD234")
+	assert.Equal(
+		t,
+		errPlate.Error(),
+		"License Plate invalid",
+		"should return an error when License Plate is invalid",
+	)
+
+	errCategory := vehicleGetterService.Submit("invalid", "VW GOL", "black", "14885511T125T", "ABC1234")
+	assert.Equal(
+		t,
+		errCategory.Error(),
+		"Category unknown",
+		"should return an error when category is unknown",
+	)
+
+	err := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T125T", "ABC1234")
 	require.Nil(t, err, "should not return an error when submit a car")
-
-	registeredCar, err := vehicleRepositoryMemo.GetVehicleById("")
-	require.Nil(t, err, "should not return an error when get registered car")
-	assert.Equal(t, car, registeredCar)
 }

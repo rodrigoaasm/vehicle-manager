@@ -12,8 +12,9 @@ type VehicleGetterOutput struct {
 	Id             string `json:"id"`
 	Category       string `json:"category"`
 	Name           string `json:"name"`
-	Cor            string `json:"cor"`
+	Color          string `json:"color"`
 	Serie          string `json:"serie"`
+	LicensePlate   string `json:"licensePlate"`
 	Status         bool   `json:"status"`
 	AutomaticPilot bool   `json:"automaticPilot"`
 }
@@ -27,12 +28,13 @@ func (service VehicleGetterService) transform(vehicle abstract.IVehicle) (Vehicl
 		car := vehicle.(*entities.Car)
 
 		return VehicleGetterOutput{
-			Id:       car.Id,
-			Category: "car",
-			Name:     car.Name,
-			Cor:      car.Cor,
-			Serie:    car.Serie,
-			Status:   car.GetStatus(),
+			Id:           car.Id,
+			Category:     "car",
+			Name:         car.Name,
+			Color:        car.Color,
+			Serie:        car.Serie,
+			LicensePlate: car.LicensePlate,
+			Status:       car.GetStatus(),
 		}, nil
 
 	} else if utils.IsThisType[entities.Truck](vehicle) {
@@ -42,8 +44,9 @@ func (service VehicleGetterService) transform(vehicle abstract.IVehicle) (Vehicl
 			Id:             truck.Id,
 			Category:       "truck",
 			Name:           truck.Name,
-			Cor:            truck.Cor,
+			Color:          truck.Color,
 			Serie:          truck.Serie,
+			LicensePlate:   truck.LicensePlate,
 			Status:         truck.GetStatus(),
 			AutomaticPilot: truck.GetAutomaticPilotStatus(),
 		}, nil

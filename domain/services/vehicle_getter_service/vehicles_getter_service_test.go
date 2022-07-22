@@ -1,7 +1,6 @@
 package vehiclegetterservice_test
 
 import (
-	"demo/domain/entities"
 	vehiclegetterservice "demo/domain/services/vehicle_getter_service"
 	"demo/external/datasource/mock/repositories"
 	"testing"
@@ -24,5 +23,13 @@ func TestGetVehicleById(t *testing.T) {
 	result, err := vehicleGetterService.GetVehicleById("a154")
 
 	require.Nil(t, err, "should not return an error when GetVehicleById was executed")
-	assert.Equal(t, result, entities.NewCar("a154", "VW GOL", "black", "14885511T125T"), "should return one car")
+	assert.Equal(t, result, vehiclegetterservice.VehicleGetterOutput{
+		Id:           "a154",
+		Category:     "car",
+		Name:         "VW GOL",
+		Color:        "black",
+		Serie:        "14885511T125T",
+		LicensePlate: "ABC1234",
+		Status:       false,
+	}, "should return one car")
 }

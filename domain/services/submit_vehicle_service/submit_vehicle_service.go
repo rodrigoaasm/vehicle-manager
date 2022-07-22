@@ -5,6 +5,7 @@ import (
 	"demo/domain/entities/abstract"
 	"demo/domain/interfaces"
 	"errors"
+	"regexp"
 
 	"github.com/google/uuid"
 )
@@ -13,19 +14,29 @@ type SubmitVehicleService struct {
 	VehicleRepository interfaces.IVehicleRepository
 }
 
-func (service SubmitVehicleService) Submit(category, name, cor, serie string) error {
+func (service SubmitVehicleService) Submit(category, name, cor, serie, licensePlate string) error {
+	// validation
+	if len(name) < 3 || len(name) > 25 {
+		return errors.New("The name must be greater than 25 or less than 3.")
+	}
 
-	var vehicle abstract.IVehicle
+	matchPlate, errPlate := regexp.MatchString("[A-Z]{3}[0-9][0-9A-Z][0-9]{2}", licensePlate)
+	if errPlate != nil || !matchPlate {
+		return errors.New("License Plate invalid")
+	}
+
+	// gen uuid
 	id, errGenUUID := uuid.NewUUID()
-
 	if errGenUUID != nil {
 		return errors.New("Could not generate an id")
 	}
 
+	// create entity
+	var vehicle abstract.IVehicle
 	if category == "car" {
-		vehicle = entities.NewCar(id.String(), name, cor, serie)
+		vehicle = entities.NewCar(id.String(), name, cor, serie, licensePlate)
 	} else if category == "truck" {
-		vehicle = entities.NewTrunk(id.String(), name, cor, serie)
+		vehicle = entities.NewTrunk(id.String(), name, cor, serie, licensePlate)
 	} else {
 		return errors.New("Category unknown")
 	}
