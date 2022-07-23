@@ -14,7 +14,11 @@ type SubmitVehicleService struct {
 	VehicleRepository interfaces.IVehicleRepository
 }
 
-func (service SubmitVehicleService) Submit(category, name, cor, serie, licensePlate string) error {
+func NewSubmitVehicleService(vehicleRepository interfaces.IVehicleRepository) *SubmitVehicleService {
+	return &SubmitVehicleService{VehicleRepository: vehicleRepository}
+}
+
+func (service *SubmitVehicleService) Submit(category, name, cor, serie, licensePlate string) error {
 	// validation
 	if len(name) < 3 || len(name) > 25 {
 		return errors.New("The name must be greater than 25 or less than 3.")
@@ -34,9 +38,9 @@ func (service SubmitVehicleService) Submit(category, name, cor, serie, licensePl
 	// create entity
 	var vehicle abstract.IVehicle
 	if category == "car" {
-		vehicle = entities.NewCar(id.String(), name, cor, serie, licensePlate)
+		vehicle = entities.NewCar(id.String(), name, cor, serie, licensePlate, false)
 	} else if category == "truck" {
-		vehicle = entities.NewTrunk(id.String(), name, cor, serie, licensePlate)
+		vehicle = entities.NewTrunk(id.String(), name, cor, serie, licensePlate, false, false)
 	} else {
 		return errors.New("Category unknown")
 	}

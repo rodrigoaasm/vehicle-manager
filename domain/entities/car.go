@@ -4,14 +4,14 @@ type Car struct {
 	Vehicle
 }
 
-func NewCar(id, name, color, serie, licensePlate string) *Car {
+func NewCar(id, name, color, serie, licensePlate string, status bool) *Car {
 	car := Car{
 		Vehicle: Vehicle{
 			Id:           id,
 			Name:         name,
 			Color:        color,
 			Serie:        serie,
-			status:       false,
+			status:       status,
 			LicensePlate: licensePlate,
 		},
 	}
@@ -25,6 +25,10 @@ func (car *Car) GetId() string {
 
 func (car *Car) TurnOn() {
 	car.status = true
+}
+
+func (car *Car) TurnOff() {
+	car.status = false
 }
 
 func (car *Car) GetStatus() bool {

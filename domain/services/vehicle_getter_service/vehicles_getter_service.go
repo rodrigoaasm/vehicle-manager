@@ -8,19 +8,12 @@ import (
 	"errors"
 )
 
-type VehicleGetterOutput struct {
-	Id             string `json:"id"`
-	Category       string `json:"category"`
-	Name           string `json:"name"`
-	Color          string `json:"color"`
-	Serie          string `json:"serie"`
-	LicensePlate   string `json:"licensePlate"`
-	Status         bool   `json:"status"`
-	AutomaticPilot bool   `json:"automaticPilot"`
-}
-
 type VehicleGetterService struct {
 	VehicleRepository interfaces.IVehicleRepository
+}
+
+func NewVehicleTurnService(vehicleRepository interfaces.IVehicleRepository) *VehicleGetterService {
+	return &VehicleGetterService{VehicleRepository: vehicleRepository}
 }
 
 func (service VehicleGetterService) transform(vehicle abstract.IVehicle) (VehicleGetterOutput, error) {

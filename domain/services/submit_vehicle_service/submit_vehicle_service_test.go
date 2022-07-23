@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var vehicleRepositoryMemo = repositories.VehicleRepositoryMemo{}
-var vehicleGetterService = submitvehicleservice.SubmitVehicleService{VehicleRepository: vehicleRepositoryMemo}
+var vehicleRepositoryMemo = repositories.NewVehicleRepositoryMemo()
+var vehicleGetterService = submitvehicleservice.NewSubmitVehicleService(vehicleRepositoryMemo)
 
 func TestSubmit(t *testing.T) {
 	errNameLess := vehicleGetterService.Submit("car", "VW", "black", "14885511T125T", "ABC1234")

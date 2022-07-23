@@ -4,6 +4,7 @@ import (
 	"demo/app/controllers"
 	submitvehicleservice "demo/domain/services/submit_vehicle_service"
 	vehiclegetterservice "demo/domain/services/vehicle_getter_service"
+	vehicleturnservice "demo/domain/services/vehicle_turn_service"
 	"demo/external/datasource/myleveldb"
 	"demo/external/datasource/myleveldb/repositories"
 	"log"
@@ -20,17 +21,12 @@ func CreateApp(apiRouter *mux.Router) {
 		return
 	}
 
-	vehicleRepo := repositories.VehicleRepository{
-		DB: db,
-	}
+	vehicleRepo := repositories.NewVehicleRepository(db)
 
 	// services
-	submitVehicleService := submitvehicleservice.SubmitVehicleService{
-		VehicleRepository: vehicleRepo,
-	}
-	vehicleGetterService := vehiclegetterservice.VehicleGetterService{
-		VehicleRepository: vehicleRepo,
-	}
+	submitVehicleService := submitvehicleservice.NewSubmitVehicleService(vehicleRepo)
+	vehicleGetterService := vehiclegetterservice.NewVehicleTurnService(vehicleRepo)
+	vehicleTurnService := vehicleturnservice.NewVehicleTurnService(vehicleRepo)
 
 	// controllers
 	submitVehicleController := controllers.SubmitVehicleController{
@@ -39,7 +35,11 @@ func CreateApp(apiRouter *mux.Router) {
 	vehicleGetterController := controllers.VehicleGetterController{
 		VehicleGetterService: vehicleGetterService,
 	}
+	vehicleTurnersController := controllers.VehicleTurnersController{
+		VehicleTurnService: vehicleTurnService,
+	}
 
 	apiRouter.HandleFunc("/vehicle", vehicleGetterController.Handle).Methods("GET")
 	apiRouter.HandleFunc("/vehicle", submitVehicleController.Handle).Methods("POST")
+	apiRouter.HandleFunc("/vehicle", vehicleTurnersController.Handle).Methods("PATCH")
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var vehicleRepositoryMemo = repositories.VehicleRepositoryMemo{}
-var vehicleGetterService = vehiclegetterservice.VehicleGetterService{VehicleRepository: vehicleRepositoryMemo}
+var vehicleRepositoryMemo = repositories.NewVehicleRepositoryMemo()
+var vehicleGetterService = vehiclegetterservice.NewVehicleTurnService(vehicleRepositoryMemo)
 
 func TestGetAllVehicle(t *testing.T) {
 	result, err := vehicleGetterService.GetAllVehicle()

@@ -5,17 +5,17 @@ type Truck struct {
 	automaticPilotStatus bool
 }
 
-func NewTrunk(id, name, color, serie, licensePlate string) *Truck {
+func NewTrunk(id, name, color, serie, licensePlate string, status, automaticPilotStatus bool) *Truck {
 	truck := Truck{
 		Vehicle: Vehicle{
 			Id:           id,
 			Name:         name,
 			Color:        color,
 			Serie:        serie,
-			status:       false,
+			status:       status,
 			LicensePlate: licensePlate,
 		},
-		automaticPilotStatus: false,
+		automaticPilotStatus: automaticPilotStatus,
 	}
 
 	return &truck
@@ -29,12 +29,20 @@ func (truck *Truck) TurnOn() {
 	truck.status = true
 }
 
+func (truck *Truck) TurnOff() {
+	truck.status = false
+}
+
 func (truck *Truck) GetStatus() bool {
 	return truck.status
 }
 
 func (truck *Truck) TurnOnAutomaticPilot() {
 	truck.automaticPilotStatus = true
+}
+
+func (truck *Truck) TurnOffAutomaticPilot() {
+	truck.automaticPilotStatus = false
 }
 
 func (truck *Truck) GetAutomaticPilotStatus() bool {
