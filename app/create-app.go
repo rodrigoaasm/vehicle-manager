@@ -14,8 +14,7 @@ import (
 
 func CreateApp(apiRouter *mux.Router) {
 
-	db, err := myleveldb.CreateLevelDB("data/db")
-
+	db, err := myleveldb.NewDatabase("db/")
 	if err != nil {
 		log.Fatal(err.Error())
 		return

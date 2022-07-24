@@ -3,21 +3,20 @@ package repositories
 import (
 	"demo/domain/entities"
 	"demo/domain/entities/abstract"
+	"demo/external/datasource/myleveldb"
 	"demo/external/datasource/myleveldb/models"
 	"demo/external/utils"
 	"encoding/json"
 	"errors"
 	"reflect"
 	"strings"
-
-	"github.com/syndtr/goleveldb/leveldb"
 )
 
 type VehicleRepository struct {
-	DB *leveldb.DB
+	DB *myleveldb.Database
 }
 
-func NewVehicleRepository(DB *leveldb.DB) *VehicleRepository {
+func NewVehicleRepository(DB *myleveldb.Database) *VehicleRepository {
 	return &VehicleRepository{DB: DB}
 }
 
@@ -57,12 +56,10 @@ func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVeh
 }
 
 func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
-
 	objectType := reflect.TypeOf(vehicle).String()
 
 	// build model
 	var vehicleModel models.VehicleModel
-
 	if utils.IsThisType[entities.Truck](vehicle) {
 		truck := vehicle.(*entities.Truck)
 		vehicleModel = models.VehicleModel{
@@ -92,21 +89,27 @@ func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
 	if errMarshal != nil {
 		return errMarshal
 	}
-
-	// Add entity type to unmarshalled entity
 	marshalledData := append([]byte(objectType+"->"), marshalledVehicle...)
-
-	// Save
-	errStore := repo.DB.Put([]byte(vehicle.GetId()), marshalledData, nil)
-	if errStore != nil {
+	if errStore := repo.DB.Data.Put([]byte(vehicle.GetId()), marshalledData, nil); errStore != nil {
 		return errStore
+	}
+
+	if errIndexSerie := repo.DB.Index.Put([]byte("serie:"+vehicleModel.Serie), []byte(vehicleModel.Id), nil); errIndexSerie != nil {
+		repo.DB.Data.Delete([]byte(vehicleModel.Id), nil)
+		return errIndexSerie
+	}
+
+	if errIndexSerie := repo.DB.Index.Put([]byte("licensePlate:"+vehicleModel.LicensePlate), []byte(vehicleModel.Id), nil); errIndexSerie != nil {
+		repo.DB.Data.Delete([]byte(vehicleModel.Id), nil)
+		repo.DB.Index.Delete([]byte("serie:"+vehicleModel.Serie), nil)
+		return errIndexSerie
 	}
 
 	return nil
 }
 
 func (repo VehicleRepository) GetAllVehicle() ([]abstract.IVehicle, error) {
-	iter := repo.DB.NewIterator(nil, nil)
+	iter := repo.DB.Data.NewIterator(nil, nil)
 	vehicles := []abstract.IVehicle{}
 
 	for iter.Next() {
@@ -127,9 +130,27 @@ func (repo VehicleRepository) GetAllVehicle() ([]abstract.IVehicle, error) {
 }
 
 func (repo VehicleRepository) GetVehicleById(id string) (abstract.IVehicle, error) {
-	marshalledVehicle, errGet := repo.DB.Get([]byte(id), nil)
+	marshalledVehicle, errGet := repo.DB.Data.Get([]byte(id), nil)
 	if errGet != nil {
 		return nil, errGet
 	}
 	return repo.transform(marshalledVehicle)
+}
+
+func (repo VehicleRepository) GetVehicleBySerie(serie string) (abstract.IVehicle, error) {
+	id, errGet := repo.DB.Index.Get([]byte("serie:"+serie), nil)
+	if errGet != nil {
+		return nil, errGet
+	}
+
+	return repo.GetVehicleById(string(id))
+}
+
+func (repo VehicleRepository) GetVehicleByLicensePlate(serie string) (abstract.IVehicle, error) {
+	id, errGet := repo.DB.Index.Get([]byte("licensePlate:"+serie), nil)
+	if errGet != nil {
+		return nil, errGet
+	}
+
+	return repo.GetVehicleById(string(id))
 }
