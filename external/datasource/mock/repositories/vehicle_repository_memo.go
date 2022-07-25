@@ -3,6 +3,7 @@ package repositories
 import (
 	"demo/domain/entities"
 	"demo/domain/entities/abstract"
+	"demo/external/utils"
 	"errors"
 )
 
@@ -35,6 +36,47 @@ func (repo *VehicleRepositoryMemo) GetVehicleById(id string) (abstract.IVehicle,
 
 		if vehicle.GetId() == id {
 			return vehicle, nil
+		}
+	}
+
+	return nil, errors.New("NOT_FOUND")
+}
+
+func (repo *VehicleRepositoryMemo) transform(iVehicle abstract.IVehicle) (entities.Vehicle, error) {
+	if utils.IsThisType[entities.Car](iVehicle) {
+		return iVehicle.(*entities.Car).Vehicle, nil
+	} else if utils.IsThisType[entities.Truck](iVehicle) {
+		return iVehicle.(*entities.Truck).Vehicle, nil
+	} else {
+		return entities.Vehicle{}, errors.New("Type invalid")
+	}
+
+}
+
+func (repo *VehicleRepositoryMemo) GetVehicleBySerie(serie string) (abstract.IVehicle, error) {
+	for _, iVehicle := range vehicles {
+		vehicle, err := repo.transform(iVehicle)
+		if err != nil {
+			return nil, errors.New("NOT_FOUND")
+		}
+
+		if vehicle.Serie == serie {
+			return iVehicle, nil
+		}
+	}
+
+	return nil, errors.New("NOT_FOUND")
+}
+
+func (repo *VehicleRepositoryMemo) GetVehicleByLicensePlate(licensePlate string) (abstract.IVehicle, error) {
+	for _, iVehicle := range vehicles {
+		vehicle, err := repo.transform(iVehicle)
+		if err != nil {
+			return nil, errors.New("NOT_FOUND")
+		}
+
+		if vehicle.LicensePlate == licensePlate {
+			return iVehicle, nil
 		}
 	}
 

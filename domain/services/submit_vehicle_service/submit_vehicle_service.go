@@ -19,7 +19,7 @@ func NewSubmitVehicleService(vehicleRepository interfaces.IVehicleRepository) *S
 }
 
 func (service *SubmitVehicleService) Submit(category, name, cor, serie, licensePlate string) error {
-	// validation
+	// Validation
 	if len(name) < 3 || len(name) > 25 {
 		return errors.New("The name must be greater than 25 or less than 3.")
 	}
@@ -46,6 +46,5 @@ func (service *SubmitVehicleService) Submit(category, name, cor, serie, licenseP
 	}
 
 	err := service.VehicleRepository.SaveVehicle(vehicle)
-
 	return err
 }

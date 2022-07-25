@@ -27,6 +27,14 @@ func TestSaveVehicle(t *testing.T) {
 
 	err = vehicleRepository.SaveVehicle(truck)
 	require.Nil(t, err, "should save the Truck")
+
+	tempCar := entities.NewCar("a158", "VW GOL", "black", "14885511T125T", "ADV1234", true)
+	err = vehicleRepository.SaveVehicle(tempCar)
+	assert.Equal(t, err.Error(), "There is already a vehicle with this serie")
+
+	tempCar = entities.NewCar("a158", "VW GOL", "black", "14815511T125T", "ABC1452", true)
+	err = vehicleRepository.SaveVehicle(tempCar)
+	assert.Equal(t, err.Error(), "There is already a vehicle with this license plate")
 }
 
 func TestGetVehicleById(t *testing.T) {

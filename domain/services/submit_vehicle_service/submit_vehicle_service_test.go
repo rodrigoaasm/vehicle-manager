@@ -37,7 +37,7 @@ func TestSubmit(t *testing.T) {
 		"should return an error when License Plate is invalid",
 	)
 
-	errCategory := vehicleGetterService.Submit("invalid", "VW GOL", "black", "14885511T125T", "ABC1234")
+	errCategory := vehicleGetterService.Submit("invalid", "VW GOL", "black", "14885511T124T", "ABC1224")
 	assert.Equal(
 		t,
 		errCategory.Error(),
@@ -45,6 +45,6 @@ func TestSubmit(t *testing.T) {
 		"should return an error when category is unknown",
 	)
 
-	err := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T125T", "ABC1234")
+	err := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T225T", "ABC1224")
 	require.Nil(t, err, "should not return an error when submit a car")
 }

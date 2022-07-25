@@ -55,10 +55,7 @@ func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVeh
 	return nil, errors.New("Invalid entity")
 }
 
-func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
-	objectType := reflect.TypeOf(vehicle).String()
-
-	// build model
+func (repo VehicleRepository) fromEntityToModel(vehicle abstract.IVehicle) (models.VehicleModel, error) {
 	var vehicleModel models.VehicleModel
 	if utils.IsThisType[entities.Truck](vehicle) {
 		truck := vehicle.(*entities.Truck)
@@ -71,6 +68,7 @@ func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
 			Status:               truck.GetStatus(),
 			StatusAutomaticPilot: truck.GetAutomaticPilotStatus(),
 		}
+		return vehicleModel, nil
 	} else if utils.IsThisType[entities.Car](vehicle) {
 		car := vehicle.(*entities.Car)
 		vehicleModel = models.VehicleModel{
@@ -81,8 +79,36 @@ func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
 			LicensePlate: car.LicensePlate,
 			Status:       car.GetStatus(),
 		}
+		return vehicleModel, nil
 	} else {
-		return errors.New("Type Invalid")
+		return models.VehicleModel{}, errors.New("Type Invalid")
+	}
+}
+
+func (repo VehicleRepository) checkExistence(vehicle models.VehicleModel) error {
+	iVehicle, errPlate := repo.GetVehicleByLicensePlate(vehicle.LicensePlate)
+	if errPlate == nil && iVehicle.GetId() != vehicle.Id {
+		return errors.New("There is already a vehicle with this license plate")
+	}
+
+	iVehicle, errSerie := repo.GetVehicleBySerie(vehicle.Serie)
+	if errSerie == nil && iVehicle.GetId() != vehicle.Id {
+		return errors.New("There is already a vehicle with this serie")
+	}
+
+	return nil
+}
+
+func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
+	objectType := reflect.TypeOf(vehicle).String()
+
+	vehicleModel, errToModel := repo.fromEntityToModel(vehicle)
+	if errToModel != nil {
+		return errToModel
+	}
+
+	if err := repo.checkExistence(vehicleModel); err != nil {
+		return err
 	}
 
 	marshalledVehicle, errMarshal := json.Marshal(vehicleModel)
@@ -90,19 +116,19 @@ func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
 		return errMarshal
 	}
 	marshalledData := append([]byte(objectType+"->"), marshalledVehicle...)
-	if errStore := repo.DB.Data.Put([]byte(vehicle.GetId()), marshalledData, nil); errStore != nil {
-		return errStore
+	if err := repo.DB.Data.Put([]byte(vehicle.GetId()), marshalledData, nil); err != nil {
+		return err
 	}
 
-	if errIndexSerie := repo.DB.Index.Put([]byte("serie:"+vehicleModel.Serie), []byte(vehicleModel.Id), nil); errIndexSerie != nil {
+	if err := repo.DB.Index.Put([]byte("serie:"+vehicleModel.Serie), []byte(vehicleModel.Id), nil); err != nil {
 		repo.DB.Data.Delete([]byte(vehicleModel.Id), nil)
-		return errIndexSerie
+		return err
 	}
 
-	if errIndexSerie := repo.DB.Index.Put([]byte("licensePlate:"+vehicleModel.LicensePlate), []byte(vehicleModel.Id), nil); errIndexSerie != nil {
+	if err := repo.DB.Index.Put([]byte("licensePlate:"+vehicleModel.LicensePlate), []byte(vehicleModel.Id), nil); err != nil {
 		repo.DB.Data.Delete([]byte(vehicleModel.Id), nil)
 		repo.DB.Index.Delete([]byte("serie:"+vehicleModel.Serie), nil)
-		return errIndexSerie
+		return err
 	}
 
 	return nil
