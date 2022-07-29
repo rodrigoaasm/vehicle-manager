@@ -1,5 +1,7 @@
 package vehiclegetterservice
 
+import "demo/domain/domainerror"
+
 type VehicleGetterOutput struct {
 	Id             string `json:"id"`
 	Category       string `json:"category"`
@@ -12,6 +14,6 @@ type VehicleGetterOutput struct {
 }
 
 type IVehicleGetterService interface {
-	GetAllVehicle() ([]VehicleGetterOutput, error)
-	GetVehicleById(id string) (VehicleGetterOutput, error)
+	GetAllVehicle() ([]VehicleGetterOutput, *domainerror.DomainError)
+	GetVehicleById(id string) (VehicleGetterOutput, *domainerror.DomainError)
 }

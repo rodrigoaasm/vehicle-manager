@@ -16,7 +16,7 @@ func TestSubmit(t *testing.T) {
 	errNameLess := vehicleGetterService.Submit("car", "VW", "black", "14885511T125T", "ABC1234")
 	assert.Equal(
 		t,
-		errNameLess.Error(),
+		errNameLess.Message,
 		"The name must be greater than 25 or less than 3.",
 		"should return an error when name is less 3",
 	)
@@ -24,7 +24,7 @@ func TestSubmit(t *testing.T) {
 	errNameGreat := vehicleGetterService.Submit("car", "123456789-123456789-123456", "black", "14885511T125T", "ABC1234")
 	assert.Equal(
 		t,
-		errNameGreat.Error(),
+		errNameGreat.Message,
 		"The name must be greater than 25 or less than 3.",
 		"should return an error when name is greater 25",
 	)
@@ -32,7 +32,7 @@ func TestSubmit(t *testing.T) {
 	errPlate := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T125T", "ABCD234")
 	assert.Equal(
 		t,
-		errPlate.Error(),
+		errPlate.Message,
 		"License Plate invalid",
 		"should return an error when License Plate is invalid",
 	)
@@ -40,7 +40,7 @@ func TestSubmit(t *testing.T) {
 	errCategory := vehicleGetterService.Submit("invalid", "VW GOL", "black", "14885511T124T", "ABC1224")
 	assert.Equal(
 		t,
-		errCategory.Error(),
+		errCategory.Message,
 		"Category unknown",
 		"should return an error when category is unknown",
 	)

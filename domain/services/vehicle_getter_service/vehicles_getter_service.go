@@ -1,11 +1,11 @@
 package vehiclegetterservice
 
 import (
+	"demo/domain/domainerror"
 	"demo/domain/entities"
 	"demo/domain/entities/abstract"
 	"demo/domain/interfaces"
 	"demo/external/utils"
-	"errors"
 )
 
 type VehicleGetterService struct {
@@ -16,7 +16,7 @@ func NewVehicleTurnService(vehicleRepository interfaces.IVehicleRepository) *Veh
 	return &VehicleGetterService{VehicleRepository: vehicleRepository}
 }
 
-func (service VehicleGetterService) transform(vehicle abstract.IVehicle) (VehicleGetterOutput, error) {
+func (service VehicleGetterService) transform(vehicle abstract.IVehicle) (VehicleGetterOutput, *domainerror.DomainError) {
 	if utils.IsThisType[entities.Car](vehicle) {
 		car := vehicle.(*entities.Car)
 
@@ -45,10 +45,10 @@ func (service VehicleGetterService) transform(vehicle abstract.IVehicle) (Vehicl
 		}, nil
 	}
 
-	return VehicleGetterOutput{}, errors.New("Type unknown")
+	return VehicleGetterOutput{}, domainerror.New(domainerror.DATABASE, "Type unknown")
 }
 
-func (service VehicleGetterService) GetAllVehicle() ([]VehicleGetterOutput, error) {
+func (service VehicleGetterService) GetAllVehicle() ([]VehicleGetterOutput, *domainerror.DomainError) {
 	vehicles, err := service.VehicleRepository.GetAllVehicle()
 	outputs := []VehicleGetterOutput{}
 
@@ -56,7 +56,7 @@ func (service VehicleGetterService) GetAllVehicle() ([]VehicleGetterOutput, erro
 		output, err := service.transform(vehicle)
 
 		if err != nil {
-			return nil, errors.New("Object format fails")
+			return nil, err
 		}
 
 		outputs = append(outputs, output)
@@ -65,7 +65,7 @@ func (service VehicleGetterService) GetAllVehicle() ([]VehicleGetterOutput, erro
 	return outputs, err
 }
 
-func (service VehicleGetterService) GetVehicleById(id string) (VehicleGetterOutput, error) {
+func (service VehicleGetterService) GetVehicleById(id string) (VehicleGetterOutput, *domainerror.DomainError) {
 	vehicle, err := service.VehicleRepository.GetVehicleById(id)
 
 	if err != nil {

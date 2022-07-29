@@ -30,11 +30,11 @@ func TestSaveVehicle(t *testing.T) {
 
 	tempCar := entities.NewCar("a158", "VW GOL", "black", "14885511T125T", "ADV1234", true)
 	err = vehicleRepository.SaveVehicle(tempCar)
-	assert.Equal(t, err.Error(), "There is already a vehicle with this serie")
+	assert.Equal(t, err.Message, "There is already a vehicle with this serie")
 
 	tempCar = entities.NewCar("a158", "VW GOL", "black", "14815511T125T", "ABC1452", true)
 	err = vehicleRepository.SaveVehicle(tempCar)
-	assert.Equal(t, err.Error(), "There is already a vehicle with this license plate")
+	assert.Equal(t, err.Message, "There is already a vehicle with this license plate")
 }
 
 func TestGetVehicleById(t *testing.T) {
@@ -45,7 +45,7 @@ func TestGetVehicleById(t *testing.T) {
 	assert.Equal(t, truck, result, "should return the Truck with id 'a156'")
 
 	_, err := vehicleRepository.GetVehicleById("a1561")
-	require.Error(t, err, "should return an error when the id does not exist")
+	require.NotNil(t, err, "should return an error when the id does not exist")
 }
 
 func TestGetVehicleBySerie(t *testing.T) {
@@ -53,7 +53,7 @@ func TestGetVehicleBySerie(t *testing.T) {
 	assert.Equal(t, car, result, "should return the vehicle with serie '14885511T125T'")
 
 	_, err := vehicleRepository.GetVehicleBySerie("invalid")
-	require.Error(t, err, "should return an error when the serie does not exist")
+	require.NotNil(t, err, "should return an error when the serie does not exist")
 }
 
 func TestGetVehicleByLicensePlate(t *testing.T) {
@@ -61,7 +61,7 @@ func TestGetVehicleByLicensePlate(t *testing.T) {
 	assert.Equal(t, car, result, "should return the vehicle with serie '14885511T125T'")
 
 	_, err := vehicleRepository.GetVehicleByLicensePlate("invalid")
-	require.Error(t, err, "should return an error when the serie does not exist")
+	require.NotNil(t, err, "should return an error when the serie does not exist")
 }
 
 func TestGetAllVehicle(t *testing.T) {

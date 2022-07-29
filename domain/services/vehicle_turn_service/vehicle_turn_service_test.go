@@ -22,7 +22,7 @@ func TestTurn(t *testing.T) {
 	err := vehicleTurnService.Turn(payload)
 	assert.Equal(
 		t,
-		err.Error(),
+		err.Message,
 		"Vehicle Not found",
 		"should return an error when vehicle does not exist",
 	)
@@ -35,7 +35,7 @@ func TestTurn(t *testing.T) {
 	err = vehicleTurnService.Turn(payload)
 	assert.Equal(
 		t,
-		err.Error(),
+		err.Message,
 		"This type of vehicle does not have autopilot",
 		"should return an error when the vehicle is not a truck",
 	)
@@ -48,7 +48,7 @@ func TestTurn(t *testing.T) {
 	err = vehicleTurnService.Turn(payload)
 	assert.Equal(
 		t,
-		err.Error(),
+		err.Message,
 		"The Status value is invalid! Valid values ​​(on/off).",
 		"should return an error when the status value is invalid",
 	)
@@ -61,7 +61,7 @@ func TestTurn(t *testing.T) {
 	err = vehicleTurnService.Turn(payload)
 	assert.Equal(
 		t,
-		err.Error(),
+		err.Message,
 		"The StatusAutomaticPilot value is invalid! Valid values ​​(on/off).",
 		"should return an error when the StatusAutomaticPilot value is invalid",
 	)

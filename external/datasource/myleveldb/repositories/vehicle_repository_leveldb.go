@@ -1,13 +1,13 @@
 package repositories
 
 import (
+	"demo/domain/domainerror"
 	"demo/domain/entities"
 	"demo/domain/entities/abstract"
 	"demo/external/datasource/myleveldb"
 	"demo/external/datasource/myleveldb/models"
 	"demo/external/utils"
 	"encoding/json"
-	"errors"
 	"reflect"
 	"strings"
 )
@@ -20,11 +20,15 @@ func NewVehicleRepository(DB *myleveldb.Database) *VehicleRepository {
 	return &VehicleRepository{DB: DB}
 }
 
-func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVehicle, error) {
+func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVehicle, *domainerror.DomainError) {
 	payload := strings.Split(string(marshalledVehicle), "->")
 
 	var vehicleModel models.VehicleModel
 	errUnMarshal := json.Unmarshal([]byte(payload[1]), &vehicleModel)
+
+	if errUnMarshal != nil {
+		return nil, domainerror.New(domainerror.INVALID_DATA, errUnMarshal.Error())
+	}
 
 	if payload[0] == "*entities.Car" {
 		vehicle := entities.NewCar(
@@ -36,7 +40,7 @@ func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVeh
 			vehicleModel.Status,
 		)
 
-		return vehicle, errUnMarshal
+		return vehicle, nil
 
 	} else if payload[0] == "*entities.Truck" {
 		vehicle := entities.NewTrunk(
@@ -48,14 +52,14 @@ func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVeh
 			vehicleModel.Status,
 			vehicleModel.StatusAutomaticPilot,
 		)
-		return vehicle, errUnMarshal
+		return vehicle, nil
 
 	}
 
-	return nil, errors.New("Invalid entity")
+	return nil, domainerror.New(domainerror.DATABASE, "Invalid type")
 }
 
-func (repo VehicleRepository) fromEntityToModel(vehicle abstract.IVehicle) (models.VehicleModel, error) {
+func (repo VehicleRepository) fromEntityToModel(vehicle abstract.IVehicle) (models.VehicleModel, *domainerror.DomainError) {
 	var vehicleModel models.VehicleModel
 	if utils.IsThisType[entities.Truck](vehicle) {
 		truck := vehicle.(*entities.Truck)
@@ -81,25 +85,25 @@ func (repo VehicleRepository) fromEntityToModel(vehicle abstract.IVehicle) (mode
 		}
 		return vehicleModel, nil
 	} else {
-		return models.VehicleModel{}, errors.New("Type Invalid")
+		return models.VehicleModel{}, domainerror.New(domainerror.DATABASE, "Type Invalid")
 	}
 }
 
-func (repo VehicleRepository) checkExistence(vehicle models.VehicleModel) error {
+func (repo VehicleRepository) checkExistence(vehicle models.VehicleModel) *domainerror.DomainError {
 	iVehicle, errPlate := repo.GetVehicleByLicensePlate(vehicle.LicensePlate)
 	if errPlate == nil && iVehicle.GetId() != vehicle.Id {
-		return errors.New("There is already a vehicle with this license plate")
+		return domainerror.New(domainerror.CONFLICT, "There is already a vehicle with this license plate")
 	}
 
 	iVehicle, errSerie := repo.GetVehicleBySerie(vehicle.Serie)
 	if errSerie == nil && iVehicle.GetId() != vehicle.Id {
-		return errors.New("There is already a vehicle with this serie")
+		return domainerror.New(domainerror.CONFLICT, "There is already a vehicle with this serie")
 	}
 
 	return nil
 }
 
-func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
+func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) *domainerror.DomainError {
 	objectType := reflect.TypeOf(vehicle).String()
 
 	vehicleModel, errToModel := repo.fromEntityToModel(vehicle)
@@ -113,28 +117,28 @@ func (repo VehicleRepository) SaveVehicle(vehicle abstract.IVehicle) error {
 
 	marshalledVehicle, errMarshal := json.Marshal(vehicleModel)
 	if errMarshal != nil {
-		return errMarshal
+		return domainerror.New(domainerror.DATABASE, errMarshal.Error())
 	}
 	marshalledData := append([]byte(objectType+"->"), marshalledVehicle...)
 	if err := repo.DB.Data.Put([]byte(vehicle.GetId()), marshalledData, nil); err != nil {
-		return err
+		return domainerror.New(domainerror.DATABASE, err.Error())
 	}
 
 	if err := repo.DB.Index.Put([]byte("serie:"+vehicleModel.Serie), []byte(vehicleModel.Id), nil); err != nil {
 		repo.DB.Data.Delete([]byte(vehicleModel.Id), nil)
-		return err
+		return domainerror.New(domainerror.DATABASE, err.Error())
 	}
 
 	if err := repo.DB.Index.Put([]byte("licensePlate:"+vehicleModel.LicensePlate), []byte(vehicleModel.Id), nil); err != nil {
 		repo.DB.Data.Delete([]byte(vehicleModel.Id), nil)
 		repo.DB.Index.Delete([]byte("serie:"+vehicleModel.Serie), nil)
-		return err
+		return domainerror.New(domainerror.DATABASE, err.Error())
 	}
 
 	return nil
 }
 
-func (repo VehicleRepository) GetAllVehicle() ([]abstract.IVehicle, error) {
+func (repo VehicleRepository) GetAllVehicle() ([]abstract.IVehicle, *domainerror.DomainError) {
 	iter := repo.DB.Data.NewIterator(nil, nil)
 	vehicles := []abstract.IVehicle{}
 
@@ -142,40 +146,40 @@ func (repo VehicleRepository) GetAllVehicle() ([]abstract.IVehicle, error) {
 		marshalledVehicle := iter.Value()
 		vehicle, err := repo.transform(marshalledVehicle)
 		if err != nil {
-			return nil, errors.New("Failed to transform one element")
+			return nil, err
 		}
 
 		vehicles = append(vehicles, vehicle)
 	}
 
 	if iter.Error() != nil {
-		return nil, errors.New("Failed to get data")
+		return nil, domainerror.New(domainerror.DATABASE, "Failed to get data")
 	}
 
 	return vehicles, nil
 }
 
-func (repo VehicleRepository) GetVehicleById(id string) (abstract.IVehicle, error) {
+func (repo VehicleRepository) GetVehicleById(id string) (abstract.IVehicle, *domainerror.DomainError) {
 	marshalledVehicle, errGet := repo.DB.Data.Get([]byte(id), nil)
 	if errGet != nil {
-		return nil, errGet
+		return nil, domainerror.New(domainerror.NOT_FOUND, "Vehicle not found")
 	}
 	return repo.transform(marshalledVehicle)
 }
 
-func (repo VehicleRepository) GetVehicleBySerie(serie string) (abstract.IVehicle, error) {
+func (repo VehicleRepository) GetVehicleBySerie(serie string) (abstract.IVehicle, *domainerror.DomainError) {
 	id, errGet := repo.DB.Index.Get([]byte("serie:"+serie), nil)
 	if errGet != nil {
-		return nil, errGet
+		return nil, domainerror.New(domainerror.NOT_FOUND, "Vehicle not found")
 	}
 
 	return repo.GetVehicleById(string(id))
 }
 
-func (repo VehicleRepository) GetVehicleByLicensePlate(serie string) (abstract.IVehicle, error) {
+func (repo VehicleRepository) GetVehicleByLicensePlate(serie string) (abstract.IVehicle, *domainerror.DomainError) {
 	id, errGet := repo.DB.Index.Get([]byte("licensePlate:"+serie), nil)
 	if errGet != nil {
-		return nil, errGet
+		return nil, domainerror.New(domainerror.NOT_FOUND, "Vehicle not found")
 	}
 
 	return repo.GetVehicleById(string(id))

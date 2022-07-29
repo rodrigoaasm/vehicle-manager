@@ -1,5 +1,7 @@
 package vehicleturnservice
 
+import "demo/domain/domainerror"
+
 type VehicleTurnInput struct {
 	Id                   string
 	Status               string
@@ -7,5 +9,5 @@ type VehicleTurnInput struct {
 }
 
 type IVehicleTurnService interface {
-	Turn(vehicle VehicleTurnInput) error
+	Turn(vehicle VehicleTurnInput) *domainerror.DomainError
 }

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	httpadapter "demo/app/adapters/http_adapter"
+	"demo/domain/domainerror"
 	submitvehicleservice "demo/domain/services/submit_vehicle_service"
 )
 
@@ -25,7 +27,7 @@ func (controller SubmitVehicleController) Handle(resWriter http.ResponseWriter, 
 	var data SubmitVehicleBodyRequest
 	errDecode := json.NewDecoder(req.Body).Decode(&data)
 	if errDecode != nil {
-		http.Error(resWriter, errDecode.Error(), 400)
+		httpadapter.BackError(resWriter, domainerror.New(domainerror.INVALID_DATA, errDecode.Error()))
 		return
 	}
 
@@ -33,7 +35,7 @@ func (controller SubmitVehicleController) Handle(resWriter http.ResponseWriter, 
 		data.Category, data.Name, data.Cor, data.Serie, data.LicensePlate,
 	)
 	if errSubmit != nil {
-		http.Error(resWriter, errSubmit.Error(), 500)
+		httpadapter.BackError(resWriter, errSubmit)
 	}
 
 	resWriter.WriteHeader(201)

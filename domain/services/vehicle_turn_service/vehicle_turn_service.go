@@ -1,11 +1,11 @@
 package vehicleturnservice
 
 import (
+	"demo/domain/domainerror"
 	"demo/domain/entities"
 	"demo/domain/entities/abstract"
 	"demo/domain/interfaces"
 	"demo/external/utils"
-	"errors"
 	"reflect"
 )
 
@@ -28,7 +28,7 @@ func NewVehicleTurnService(vehicleRepository interfaces.IVehicleRepository) *Veh
 	return &VehicleTurnService{VehicleRepository: vehicleRepository}
 }
 
-func (service VehicleTurnService) callTurn(attrName string, attrValue string, vehicle abstract.IVehicle) error {
+func (service VehicleTurnService) callTurn(attrName string, attrValue string, vehicle abstract.IVehicle) *domainerror.DomainError {
 	if attrValue != "" {
 		attrMethod := methods[attrName]
 
@@ -38,17 +38,17 @@ func (service VehicleTurnService) callTurn(attrName string, attrValue string, ve
 			m.Call([]reflect.Value{})
 			return nil
 		} else {
-			return errors.New("The " + attrName + " value is invalid! Valid values ​​(on/off).")
+			return domainerror.New(domainerror.INVALID_DATA, "The "+attrName+" value is invalid! Valid values ​​(on/off).")
 		}
 	}
 
 	return nil
 }
 
-func (service VehicleTurnService) Turn(payload VehicleTurnInput) error {
+func (service VehicleTurnService) Turn(payload VehicleTurnInput) *domainerror.DomainError {
 	vehicle, err := service.VehicleRepository.GetVehicleById(payload.Id)
 	if err != nil {
-		return errors.New("Vehicle Not found")
+		return domainerror.New(domainerror.NOT_FOUND, "Vehicle Not found")
 	}
 
 	if utils.IsThisType[entities.Truck](vehicle) {
@@ -57,7 +57,7 @@ func (service VehicleTurnService) Turn(payload VehicleTurnInput) error {
 			return err
 		}
 	} else if payload.StatusAutomaticPilot != "" {
-		return errors.New("This type of vehicle does not have autopilot")
+		return domainerror.New(domainerror.INVALID_DATA, "This type of vehicle does not have autopilot")
 	}
 
 	// Status on/off value for method

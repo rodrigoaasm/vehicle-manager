@@ -1,10 +1,10 @@
 package repositories
 
 import (
+	"demo/domain/domainerror"
 	"demo/domain/entities"
 	"demo/domain/entities/abstract"
 	"demo/external/utils"
-	"errors"
 )
 
 var vehicles = []abstract.IVehicle{
@@ -21,17 +21,17 @@ func NewVehicleRepositoryMemo() *VehicleRepositoryMemo {
 	return &VehicleRepositoryMemo{}
 }
 
-func (repo *VehicleRepositoryMemo) SaveVehicle(vehicle abstract.IVehicle) error {
+func (repo *VehicleRepositoryMemo) SaveVehicle(vehicle abstract.IVehicle) *domainerror.DomainError {
 	repo.LastSavedVehicle = vehicle
 	vehicles = append(vehicles, vehicle)
 	return nil
 }
 
-func (repo *VehicleRepositoryMemo) GetAllVehicle() ([]abstract.IVehicle, error) {
+func (repo *VehicleRepositoryMemo) GetAllVehicle() ([]abstract.IVehicle, *domainerror.DomainError) {
 	return vehicles, nil
 }
 
-func (repo *VehicleRepositoryMemo) GetVehicleById(id string) (abstract.IVehicle, error) {
+func (repo *VehicleRepositoryMemo) GetVehicleById(id string) (abstract.IVehicle, *domainerror.DomainError) {
 	for _, vehicle := range vehicles {
 
 		if vehicle.GetId() == id {
@@ -39,25 +39,25 @@ func (repo *VehicleRepositoryMemo) GetVehicleById(id string) (abstract.IVehicle,
 		}
 	}
 
-	return nil, errors.New("NOT_FOUND")
+	return nil, domainerror.New(domainerror.NOT_FOUND, "NOT_FOUND")
 }
 
-func (repo *VehicleRepositoryMemo) transform(iVehicle abstract.IVehicle) (entities.Vehicle, error) {
+func (repo *VehicleRepositoryMemo) transform(iVehicle abstract.IVehicle) (entities.Vehicle, *domainerror.DomainError) {
 	if utils.IsThisType[entities.Car](iVehicle) {
 		return iVehicle.(*entities.Car).Vehicle, nil
 	} else if utils.IsThisType[entities.Truck](iVehicle) {
 		return iVehicle.(*entities.Truck).Vehicle, nil
 	} else {
-		return entities.Vehicle{}, errors.New("Type invalid")
+		return entities.Vehicle{}, domainerror.New(domainerror.INVALID_DATA, "Type invalid")
 	}
 
 }
 
-func (repo *VehicleRepositoryMemo) GetVehicleBySerie(serie string) (abstract.IVehicle, error) {
+func (repo *VehicleRepositoryMemo) GetVehicleBySerie(serie string) (abstract.IVehicle, *domainerror.DomainError) {
 	for _, iVehicle := range vehicles {
 		vehicle, err := repo.transform(iVehicle)
 		if err != nil {
-			return nil, errors.New("NOT_FOUND")
+			return nil, domainerror.New(domainerror.NOT_FOUND, "NOT_FOUND")
 		}
 
 		if vehicle.Serie == serie {
@@ -65,14 +65,14 @@ func (repo *VehicleRepositoryMemo) GetVehicleBySerie(serie string) (abstract.IVe
 		}
 	}
 
-	return nil, errors.New("NOT_FOUND")
+	return nil, domainerror.New(domainerror.NOT_FOUND, "NOT_FOUND")
 }
 
-func (repo *VehicleRepositoryMemo) GetVehicleByLicensePlate(licensePlate string) (abstract.IVehicle, error) {
+func (repo *VehicleRepositoryMemo) GetVehicleByLicensePlate(licensePlate string) (abstract.IVehicle, *domainerror.DomainError) {
 	for _, iVehicle := range vehicles {
 		vehicle, err := repo.transform(iVehicle)
 		if err != nil {
-			return nil, errors.New("NOT_FOUND")
+			return nil, domainerror.New(domainerror.NOT_FOUND, "NOT_FOUND")
 		}
 
 		if vehicle.LicensePlate == licensePlate {
@@ -80,5 +80,5 @@ func (repo *VehicleRepositoryMemo) GetVehicleByLicensePlate(licensePlate string)
 		}
 	}
 
-	return nil, errors.New("NOT_FOUND")
+	return nil, domainerror.New(domainerror.NOT_FOUND, "NOT_FOUND")
 }

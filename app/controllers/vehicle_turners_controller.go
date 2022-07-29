@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	httpadapter "demo/app/adapters/http_adapter"
+	"demo/domain/domainerror"
 	vehicleturnservice "demo/domain/services/vehicle_turn_service"
 	"encoding/json"
 	"net/http"
@@ -20,7 +22,7 @@ func (controller VehicleTurnersController) Handle(resWriter http.ResponseWriter,
 	var data VehicleTurnersBodyRequest
 	errDecode := json.NewDecoder(req.Body).Decode(&data)
 	if errDecode != nil {
-		http.Error(resWriter, errDecode.Error(), 400)
+		httpadapter.BackError(resWriter, domainerror.New(domainerror.INVALID_DATA, errDecode.Error()))
 		return
 	}
 
@@ -30,7 +32,7 @@ func (controller VehicleTurnersController) Handle(resWriter http.ResponseWriter,
 		StatusAutomaticPilot: data.StatusAutomaticPilot,
 	})
 	if errSubmit != nil {
-		http.Error(resWriter, errSubmit.Error(), 500)
+		httpadapter.BackError(resWriter, errSubmit)
 	}
 
 	resWriter.WriteHeader(204)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	httpadapter "demo/app/adapters/http_adapter"
 	vehiclegetterservice "demo/domain/services/vehicle_getter_service"
 )
 
@@ -19,7 +20,7 @@ func (controller VehicleGetterController) Handle(resWriter http.ResponseWriter, 
 		result, err := controller.VehicleGetterService.GetVehicleById(id)
 
 		if err != nil {
-			http.Error(resWriter, err.Error(), 500)
+			httpadapter.BackError(resWriter, err)
 			return
 		}
 
