@@ -7,4 +7,5 @@ type Vehicle struct {
 	Serie        string
 	status       bool
 	LicensePlate string
+	Travelled    float32
 }

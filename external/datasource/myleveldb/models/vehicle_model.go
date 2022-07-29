@@ -8,4 +8,5 @@ type VehicleModel struct {
 	Status               bool
 	LicensePlate         string
 	StatusAutomaticPilot bool
+	Travelled            float32
 }

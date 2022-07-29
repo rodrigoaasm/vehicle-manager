@@ -30,6 +30,7 @@ func TestGetVehicleById(t *testing.T) {
 		Color:        "black",
 		Serie:        "14885511T125T",
 		LicensePlate: "ABC1234",
+		Travelled:    20000,
 		Status:       false,
 	}, "should return one car")
 }

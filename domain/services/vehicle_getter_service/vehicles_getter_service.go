@@ -26,6 +26,7 @@ func (service VehicleGetterService) transform(vehicle abstract.IVehicle) (Vehicl
 			Name:         car.Name,
 			Color:        car.Color,
 			Serie:        car.Serie,
+			Travelled:    car.Travelled,
 			LicensePlate: car.LicensePlate,
 			Status:       car.GetStatus(),
 		}, nil
@@ -40,6 +41,7 @@ func (service VehicleGetterService) transform(vehicle abstract.IVehicle) (Vehicl
 			Color:          truck.Color,
 			Serie:          truck.Serie,
 			LicensePlate:   truck.LicensePlate,
+			Travelled:      truck.Travelled,
 			Status:         truck.GetStatus(),
 			AutomaticPilot: truck.GetAutomaticPilotStatus(),
 		}, nil

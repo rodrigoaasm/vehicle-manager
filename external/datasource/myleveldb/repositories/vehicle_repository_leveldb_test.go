@@ -16,8 +16,8 @@ import (
 var db, errDatabase = myleveldb.NewDatabase("test/" + strconv.Itoa(rand.Intn(100)))
 var vehicleRepository = repositories.NewVehicleRepository(db)
 
-var car = entities.NewCar("a157", "VW GOL", "black", "14885511T125T", "ABC1452", true)
-var truck = entities.NewTrunk("a156", "VW CONSTELLATION", "white", "2885511T125E", "ABC1451", false, false)
+var car = entities.NewCar("a157", "VW GOL", "black", "14885511T125T", "ABC1452", 10000, true)
+var truck = entities.NewTrunk("a156", "VW CONSTELLATION", "white", "2885511T125E", "ABC1451", 20000, false, false)
 
 func TestSaveVehicle(t *testing.T) {
 	err := vehicleRepository.SaveVehicle(car)
@@ -28,11 +28,11 @@ func TestSaveVehicle(t *testing.T) {
 	err = vehicleRepository.SaveVehicle(truck)
 	require.Nil(t, err, "should save the Truck")
 
-	tempCar := entities.NewCar("a158", "VW GOL", "black", "14885511T125T", "ADV1234", true)
+	tempCar := entities.NewCar("a158", "VW GOL", "black", "14885511T125T", "ADV1234", 200, true)
 	err = vehicleRepository.SaveVehicle(tempCar)
 	assert.Equal(t, err.Message, "There is already a vehicle with this serie")
 
-	tempCar = entities.NewCar("a158", "VW GOL", "black", "14815511T125T", "ABC1452", true)
+	tempCar = entities.NewCar("a158", "VW GOL", "black", "14815511T125T", "ABC1452", 200, true)
 	err = vehicleRepository.SaveVehicle(tempCar)
 	assert.Equal(t, err.Message, "There is already a vehicle with this license plate")
 }

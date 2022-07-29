@@ -13,7 +13,7 @@ var vehicleRepositoryMemo = repositories.NewVehicleRepositoryMemo()
 var vehicleGetterService = submitvehicleservice.NewSubmitVehicleService(vehicleRepositoryMemo)
 
 func TestSubmit(t *testing.T) {
-	errNameLess := vehicleGetterService.Submit("car", "VW", "black", "14885511T125T", "ABC1234")
+	errNameLess := vehicleGetterService.Submit("car", "VW", "black", "14885511T125T", "ABC1234", 0)
 	assert.Equal(
 		t,
 		errNameLess.Message,
@@ -21,7 +21,7 @@ func TestSubmit(t *testing.T) {
 		"should return an error when name is less 3",
 	)
 
-	errNameGreat := vehicleGetterService.Submit("car", "123456789-123456789-123456", "black", "14885511T125T", "ABC1234")
+	errNameGreat := vehicleGetterService.Submit("car", "123456789-123456789-123456", "black", "14885511T125T", "ABC1234", 0)
 	assert.Equal(
 		t,
 		errNameGreat.Message,
@@ -29,7 +29,15 @@ func TestSubmit(t *testing.T) {
 		"should return an error when name is greater 25",
 	)
 
-	errPlate := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T125T", "ABCD234")
+	errTravelled := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T125T", "ABC1234", -20)
+	assert.Equal(
+		t,
+		errTravelled.Message,
+		"Travelled invalid. Travelled is negative",
+		"should return an error when Travelled invalid is invalid",
+	)
+
+	errPlate := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T125T", "ABCD234", 0)
 	assert.Equal(
 		t,
 		errPlate.Message,
@@ -37,7 +45,7 @@ func TestSubmit(t *testing.T) {
 		"should return an error when License Plate is invalid",
 	)
 
-	errCategory := vehicleGetterService.Submit("invalid", "VW GOL", "black", "14885511T124T", "ABC1224")
+	errCategory := vehicleGetterService.Submit("invalid", "VW GOL", "black", "14885511T124T", "ABC1224", 0)
 	assert.Equal(
 		t,
 		errCategory.Message,
@@ -45,6 +53,6 @@ func TestSubmit(t *testing.T) {
 		"should return an error when category is unknown",
 	)
 
-	err := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T225T", "ABC1224")
+	err := vehicleGetterService.Submit("car", "VW GOL", "black", "14885511T225T", "ABC1224", 0)
 	require.Nil(t, err, "should not return an error when submit a car")
 }

@@ -4,7 +4,7 @@ type Car struct {
 	Vehicle
 }
 
-func NewCar(id, name, color, serie, licensePlate string, status bool) *Car {
+func NewCar(id, name, color, serie, licensePlate string, travelled float32, status bool) *Car {
 	car := Car{
 		Vehicle: Vehicle{
 			Id:           id,
@@ -13,6 +13,7 @@ func NewCar(id, name, color, serie, licensePlate string, status bool) *Car {
 			Serie:        serie,
 			status:       status,
 			LicensePlate: licensePlate,
+			Travelled:    travelled,
 		},
 	}
 

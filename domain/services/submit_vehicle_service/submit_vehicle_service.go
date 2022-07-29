@@ -18,7 +18,7 @@ func NewSubmitVehicleService(vehicleRepository interfaces.IVehicleRepository) *S
 	return &SubmitVehicleService{VehicleRepository: vehicleRepository}
 }
 
-func (service *SubmitVehicleService) Submit(category, name, cor, serie, licensePlate string) *domainerror.DomainError {
+func (service *SubmitVehicleService) Submit(category, name, cor, serie, licensePlate string, travelled float32) *domainerror.DomainError {
 	// Validation
 	if len(name) < 3 || len(name) > 25 {
 		return domainerror.New(domainerror.INVALID_DATA, "The name must be greater than 25 or less than 3.")
@@ -27,6 +27,10 @@ func (service *SubmitVehicleService) Submit(category, name, cor, serie, licenseP
 	matchPlate, errPlate := regexp.MatchString("[A-Z]{3}[0-9][0-9A-Z][0-9]{2}", licensePlate)
 	if errPlate != nil || !matchPlate {
 		return domainerror.New(domainerror.INVALID_DATA, "License Plate invalid")
+	}
+
+	if travelled < 0 {
+		return domainerror.New(domainerror.INVALID_DATA, "Travelled invalid. Travelled is negative")
 	}
 
 	// gen uuid
@@ -38,9 +42,9 @@ func (service *SubmitVehicleService) Submit(category, name, cor, serie, licenseP
 	// create entity
 	var vehicle abstract.IVehicle
 	if category == "car" {
-		vehicle = entities.NewCar(id.String(), name, cor, serie, licensePlate, false)
+		vehicle = entities.NewCar(id.String(), name, cor, serie, licensePlate, travelled, false)
 	} else if category == "truck" {
-		vehicle = entities.NewTrunk(id.String(), name, cor, serie, licensePlate, false, false)
+		vehicle = entities.NewTrunk(id.String(), name, cor, serie, licensePlate, travelled, false, false)
 	} else {
 		return domainerror.New(domainerror.INVALID_DATA, "Category unknown")
 	}

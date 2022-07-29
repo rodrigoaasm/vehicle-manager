@@ -1,8 +1,8 @@
-package vehicleturnservice_test
+package vehicleupdateservice_test
 
 import (
 	"demo/domain/entities"
-	vehicleturnservice "demo/domain/services/vehicle_turn_service"
+	vehicleupdateservice "demo/domain/services/vehicle_update_service"
 	"demo/external/datasource/mock/repositories"
 	"testing"
 
@@ -11,10 +11,10 @@ import (
 )
 
 var vehicleRepositoryMemo = repositories.NewVehicleRepositoryMemo()
-var vehicleTurnService = vehicleturnservice.NewVehicleTurnService(vehicleRepositoryMemo)
+var vehicleTurnService = vehicleupdateservice.NewVehicleUpdateService(vehicleRepositoryMemo)
 
 func TestTurn(t *testing.T) {
-	payload := vehicleturnservice.VehicleTurnInput{
+	payload := vehicleupdateservice.VehicleUpdateInput{
 		Id:                   "id",
 		Status:               "on",
 		StatusAutomaticPilot: "on",
@@ -27,7 +27,7 @@ func TestTurn(t *testing.T) {
 		"should return an error when vehicle does not exist",
 	)
 
-	payload = vehicleturnservice.VehicleTurnInput{
+	payload = vehicleupdateservice.VehicleUpdateInput{
 		Id:                   "a154",
 		Status:               "on",
 		StatusAutomaticPilot: "on",
@@ -40,7 +40,7 @@ func TestTurn(t *testing.T) {
 		"should return an error when the vehicle is not a truck",
 	)
 
-	payload = vehicleturnservice.VehicleTurnInput{
+	payload = vehicleupdateservice.VehicleUpdateInput{
 		Id:                   "a154",
 		Status:               "invalid",
 		StatusAutomaticPilot: "",
@@ -53,7 +53,7 @@ func TestTurn(t *testing.T) {
 		"should return an error when the status value is invalid",
 	)
 
-	payload = vehicleturnservice.VehicleTurnInput{
+	payload = vehicleupdateservice.VehicleUpdateInput{
 		Id:                   "a156",
 		Status:               "on",
 		StatusAutomaticPilot: "invalid",
@@ -66,7 +66,7 @@ func TestTurn(t *testing.T) {
 		"should return an error when the StatusAutomaticPilot value is invalid",
 	)
 
-	payload = vehicleturnservice.VehicleTurnInput{
+	payload = vehicleupdateservice.VehicleUpdateInput{
 		Id:                   "a154",
 		Status:               "on",
 		StatusAutomaticPilot: "",
@@ -75,15 +75,39 @@ func TestTurn(t *testing.T) {
 	require.Nil(t, errTurnCar)
 	assert.Equal(t, true, vehicleRepositoryMemo.LastSavedVehicle.GetStatus(), "should turn on the car")
 
-	payload = vehicleturnservice.VehicleTurnInput{
+	payload = vehicleupdateservice.VehicleUpdateInput{
 		Id:                   "a156",
 		Status:               "on",
 		StatusAutomaticPilot: "on",
 	}
 	errTurnTruck := vehicleTurnService.Turn(payload)
 	savedVehicle := vehicleRepositoryMemo.LastSavedVehicle.(*entities.Truck)
-
 	require.Nil(t, errTurnTruck)
 	assert.Equal(t, true, savedVehicle.GetStatus(), "should turn on the truck")
 	assert.Equal(t, true, savedVehicle.GetAutomaticPilotStatus(), "should turn on automatic pilot in the truck")
+
+	payload = vehicleupdateservice.VehicleUpdateInput{
+		Id:                   "a156",
+		Status:               "off",
+		StatusAutomaticPilot: "on",
+		Travelled:            0,
+	}
+	err = vehicleTurnService.Turn(payload)
+	assert.Equal(
+		t,
+		err.Message,
+		"The new value of travelled is less than current value of travelled.",
+		"should return an error when the travelled value is invalid",
+	)
+
+	payload = vehicleupdateservice.VehicleUpdateInput{
+		Id:                   "a156",
+		Status:               "off",
+		StatusAutomaticPilot: "on",
+		Travelled:            200,
+	}
+	errTurnTravelled := vehicleTurnService.Turn(payload)
+	require.Nil(t, errTurnTravelled)
+	assert.Equal(t, false, savedVehicle.GetStatus(), "should turn off the truck")
+	assert.Equal(t, float32(200), savedVehicle.Travelled, "should update value of travelled")
 }

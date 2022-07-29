@@ -37,6 +37,7 @@ func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVeh
 			vehicleModel.Color,
 			vehicleModel.Serie,
 			vehicleModel.LicensePlate,
+			vehicleModel.Travelled,
 			vehicleModel.Status,
 		)
 
@@ -49,6 +50,7 @@ func (repo VehicleRepository) transform(marshalledVehicle []byte) (abstract.IVeh
 			vehicleModel.Color,
 			vehicleModel.Serie,
 			vehicleModel.LicensePlate,
+			vehicleModel.Travelled,
 			vehicleModel.Status,
 			vehicleModel.StatusAutomaticPilot,
 		)
@@ -69,6 +71,7 @@ func (repo VehicleRepository) fromEntityToModel(vehicle abstract.IVehicle) (mode
 			Color:                truck.Color,
 			Serie:                truck.Serie,
 			LicensePlate:         truck.LicensePlate,
+			Travelled:            truck.Travelled,
 			Status:               truck.GetStatus(),
 			StatusAutomaticPilot: truck.GetAutomaticPilotStatus(),
 		}
@@ -81,6 +84,7 @@ func (repo VehicleRepository) fromEntityToModel(vehicle abstract.IVehicle) (mode
 			Color:        car.Color,
 			Serie:        car.Serie,
 			LicensePlate: car.LicensePlate,
+			Travelled:    car.Travelled,
 			Status:       car.GetStatus(),
 		}
 		return vehicleModel, nil

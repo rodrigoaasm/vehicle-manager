@@ -5,7 +5,11 @@ type Truck struct {
 	automaticPilotStatus bool
 }
 
-func NewTrunk(id, name, color, serie, licensePlate string, status, automaticPilotStatus bool) *Truck {
+func NewTrunk(
+	id, name, color, serie, licensePlate string,
+	travelled float32,
+	status, automaticPilotStatus bool,
+) *Truck {
 	truck := Truck{
 		Vehicle: Vehicle{
 			Id:           id,
@@ -14,6 +18,7 @@ func NewTrunk(id, name, color, serie, licensePlate string, status, automaticPilo
 			Serie:        serie,
 			status:       status,
 			LicensePlate: licensePlate,
+			Travelled:    travelled,
 		},
 		automaticPilotStatus: automaticPilotStatus,
 	}

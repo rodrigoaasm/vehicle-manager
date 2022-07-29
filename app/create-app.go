@@ -4,7 +4,7 @@ import (
 	"demo/app/controllers"
 	submitvehicleservice "demo/domain/services/submit_vehicle_service"
 	vehiclegetterservice "demo/domain/services/vehicle_getter_service"
-	vehicleturnservice "demo/domain/services/vehicle_turn_service"
+	vehicleupdateservice "demo/domain/services/vehicle_update_service"
 	"demo/external/datasource/myleveldb"
 	"demo/external/datasource/myleveldb/repositories"
 	"log"
@@ -25,7 +25,7 @@ func CreateApp(apiRouter *mux.Router) {
 	// services
 	submitVehicleService := submitvehicleservice.NewSubmitVehicleService(vehicleRepo)
 	vehicleGetterService := vehiclegetterservice.NewVehicleTurnService(vehicleRepo)
-	vehicleTurnService := vehicleturnservice.NewVehicleTurnService(vehicleRepo)
+	vehicleUpdateService := vehicleupdateservice.NewVehicleUpdateService(vehicleRepo)
 
 	// controllers
 	submitVehicleController := controllers.SubmitVehicleController{
@@ -34,8 +34,8 @@ func CreateApp(apiRouter *mux.Router) {
 	vehicleGetterController := controllers.VehicleGetterController{
 		VehicleGetterService: vehicleGetterService,
 	}
-	vehicleTurnersController := controllers.VehicleTurnersController{
-		VehicleTurnService: vehicleTurnService,
+	vehicleTurnersController := controllers.VehicleUpdateController{
+		VehicleTurnService: vehicleUpdateService,
 	}
 
 	apiRouter.HandleFunc("/vehicle", vehicleGetterController.Handle).Methods("GET")

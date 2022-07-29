@@ -8,9 +8,9 @@ import (
 )
 
 var vehicles = []abstract.IVehicle{
-	entities.NewCar("a154", "VW GOL", "black", "14885511T125T", "ABC1234", false),
-	entities.NewCar("a155", "VW GOL", "pink", "12885511T125T", "ABC1234", false),
-	entities.NewTrunk("a156", "VW CONSTELLATION", "white", "2885511T125E", "ABC1234", false, false),
+	entities.NewCar("a154", "VW GOL", "black", "14885511T125T", "ABC1234", 20000, false),
+	entities.NewCar("a155", "VW GOL", "pink", "12885511T125T", "ABC1234", 20000, false),
+	entities.NewTrunk("a156", "VW CONSTELLATION", "white", "2885511T125E", "ABC1234", 20000, false, false),
 }
 
 type VehicleRepositoryMemo struct {
