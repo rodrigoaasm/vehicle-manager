@@ -1,7 +1,8 @@
 package app
 
 import (
-	"demo/app/controllers"
+	"demo/app/kafka"
+	"demo/app/web/controllers"
 	submitvehicleservice "demo/domain/services/submit_vehicle_service"
 	vehiclegetterservice "demo/domain/services/vehicle_getter_service"
 	vehicleupdateservice "demo/domain/services/vehicle_update_service"
@@ -24,6 +25,7 @@ func CreateApp(apiRouter *mux.Router) {
 
 	// services
 	submitVehicleService := submitvehicleservice.NewSubmitVehicleService(vehicleRepo)
+	submitVehicleServiceWithOut := submitvehicleservice.NewSubmitVehicleWithOutValidationService(vehicleRepo)
 	vehicleGetterService := vehiclegetterservice.NewVehicleTurnService(vehicleRepo)
 	vehicleUpdateService := vehicleupdateservice.NewVehicleUpdateService(vehicleRepo)
 
@@ -37,6 +39,12 @@ func CreateApp(apiRouter *mux.Router) {
 	vehicleTurnersController := controllers.VehicleUpdateController{
 		VehicleTurnService: vehicleUpdateService,
 	}
+
+	// consumers
+	submitVehicleConsumer := kafka.SubmitVehicleConsumer{
+		SubmitVehicleService: submitVehicleServiceWithOut,
+	}
+	submitVehicleConsumer.Consume()
 
 	apiRouter.HandleFunc("/vehicle", vehicleGetterController.Handle).Methods("GET")
 	apiRouter.HandleFunc("/vehicle", submitVehicleController.Handle).Methods("POST")
